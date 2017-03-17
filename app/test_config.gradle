@@ -1,0 +1,196 @@
+/**
+ * Created by cz on 2017/3/16.
+ * 测试方法条目
+ */
+class TestMethodItem {
+    final def methodName
+    final def returnType
+    final def paramsType
+    def paramItems=[]
+    def desc
+
+    TestMethodItem(returnType,methodName) {
+        this.methodName = methodName
+        this.returnType = returnType
+    }
+
+    TestMethodItem(returnType,methodName, paramsType) {
+        this.methodName = methodName
+        this.returnType = returnType
+        this.paramsType = paramsType
+    }
+
+    boolean equals(o) {
+        if (this.is(o)) return true
+        if (getClass() != o.class) return false
+
+        TestMethodItem that = (TestMethodItem) o
+        if (methodName != that.methodName) return false
+        if (paramItems != that.paramItems) return false
+        if (returnType != that.returnType) return false
+        return true
+    }
+
+}
+
+/**
+ * Created by cz on 2017/3/16.
+ * 测试参数条目
+ */
+class TestMethodType {
+    def type
+    def name
+    def desc
+
+    TestMethodType(type, name) {
+        this.type = type
+        this.name = name
+    }
+
+    TestMethodType(type, name, desc) {
+        this.type = type
+        this.name = name
+        this.desc = desc
+    }
+
+    boolean equals(o) {
+        if (this.is(o)) return true
+        if (getClass() != o.class) return false
+
+        TestMethodType that = (TestMethodType) o
+
+        if (name != that.name) return false
+        if (type != that.type) return false
+
+        return true
+    }
+
+}
+
+
+
+/**
+ * Created by cz on 2017/3/15.
+ */
+//分析出源码里,所有方法,返回值,以及参数
+class TestWorker {
+    final def assetFolder
+    final def file
+
+    TestWorker(assetFolder, file) {
+        this.assetFolder = assetFolder
+        this.file = file
+    }
+
+    def analysis(){
+        int count=0
+        int methodCount=0
+        final def items=[]
+        file.withReader {
+            it.readLines().each {
+                //            def matcher=it=~/public\s([void|\\w<>])\s(\\w_)\(((_\w+)\s+(_\w+))*\)/
+                //            <T extends View> T
+                def matcher=it=~/public\s+(([\s\w_<>\?\.]+)|(void)|(<[\s\w_<>\?\.]+>)\s+([\s\w_<>\?\.]+))\s+([\s\w_<>\?\.]+)\(([^)]+)?\)/
+                if(matcher){
+                    count++
+                    items<<new TestMethodItem(matcher[0][2],matcher[0][6],matcher[0][7])
+                } else if(it.contains("@Override")){
+                    methodCount++
+                }
+            }
+            println "methodCount:$methodCount count:$count"
+        }
+
+        updateTestDoc(items)
+
+    }
+
+    /**
+     * 读取己存在的测试文档
+     * @return
+     */
+    List<TestMethodItem> readTestDoc() {
+        def result=[]
+        def xmlFile=new File(assetFolder,"test.xml")
+        if(xmlFile.exists()) {
+            //解析xml生成
+            def root = new XmlParser().parse(new File(assetFolder, "test.xml"))
+            root.item.each { Node node ->
+                def methodItem = new TestMethodItem(node.attributes()["return"],node.attributes()["name"])
+                methodItem.desc= node.attributes()["desc"]
+                node.children().each {
+                    methodItem.paramItems << new TestMethodType(it.attributes()["type"],it.attributes()["name"],it.attributes()["desc"])
+                }
+                result << methodItem
+            }
+        }
+        result
+    }
+
+
+    void updateTestDoc(ArrayList<TestMethodItem> items) {
+        def existsItems=readTestDoc()
+        //第一级,分析获得方法参数
+        items.each {
+            if(it.paramsType){
+                def matcher=it.paramsType=~/([\w<>\.?_\?]+)\s+([\w<>\.?_\?]+)(\s*,\s+)?/
+                while(matcher.find()){
+                    it.paramItems<<new TestMethodType(matcher.group(1),matcher.group(2))
+                }
+            }
+        }
+        items-=existsItems
+        //如果有新的条目,则更新,否则不必操作
+//        if(!items){
+//            println "没有更新条目"
+//        } else {
+            println "更新条目:${items.size()}条数据"
+            existsItems+=items
+
+            def matcherItems=[:]
+            def existsMatcherItems=[:]
+            def file=new File(assetFolder,"m_test.txt")
+            //读取己存在条目
+            if(file.exists()){
+                file.readLines().each {
+                    def matcher=it=~/([\w<>\.?_\?]+)=(.*)/
+                    existsMatcherItems<<[(matcher[0][1]):matcher[0][2]]
+                }
+            }
+            //检测出所有关键字
+            existsItems.each {
+                it.paramItems.each { matcherItems<<[(it.name):it.desc] }
+                matcherItems<<[(it.methodName):it.desc]
+            }
+
+            //写入多余检测条目
+            matcherItems-=existsMatcherItems
+            matcherItems+=existsMatcherItems
+            final def writer=file.newWriter()
+            matcherItems.each { writer.write(it.key+"="+(it.value?:"")+"\n") }
+            writer.close()
+
+            //写入文件
+            def fileWriter=new FileWriter(new File(assetFolder,"test.xml"))
+            def xml = new groovy.xml.MarkupBuilder(fileWriter)
+            xml.define([ct:new Date().toLocaleString()]){
+                existsItems.each{ methodItem->
+                    item([name:methodItem.methodName,return:methodItem.returnType,desc:matcherItems[methodItem.methodName]?:""]){
+                        methodItem.paramItems.each { TestMethodType paramItem->
+                            params([type:paramItem.type,name:paramItem.name,desc:matcherItems[paramItem.name]?:""])
+                        }
+                    }
+                }
+            }
+//        }
+    }
+}
+
+
+task "updateTestConfig"<<{
+    def classFile=new File("app/src/androidTest/java/com/robotium/solo/quant/group/NewSolo.java")
+    def assetFolder=new File("app/src/main/assets/")
+    new TestWorker(assetFolder,classFile).analysis()
+}
+
+
