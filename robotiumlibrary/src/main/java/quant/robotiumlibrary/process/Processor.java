@@ -6,7 +6,7 @@ import quant.robotiumlibrary.event.EventItem;
  * Created by cz on 2017/3/16.
  */
 
-public interface Processor {
-    void addEvent(EventItem item);
-    void process();
+public interface Processor<T> {
+    void addEvent(String tag,EventItem item);
+    void process(T t,String tag);
 }

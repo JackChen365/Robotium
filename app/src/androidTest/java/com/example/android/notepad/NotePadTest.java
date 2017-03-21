@@ -12,92 +12,43 @@
 
 package com.example.android.notepad;
 
-import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
+import android.test.ActivityInstrumentationTestCase2;
 
-import com.robotium.solo.Solo;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.Set;
-import java.util.TreeSet;
 
 import quant.robotiumlibrary.solo.NewSolo;
 import quant.robotiumlibrary.solo.SoloInterface;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
-
-@RunWith(AndroidJUnit4.class)
-public class NotePadTest {
+public class NotePadTest extends ActivityInstrumentationTestCase2<NotesList> {
     public static final String TAG="NotePadTest";
     private static final String NOTE_1 = "Note 1";
     private static final String NOTE_2 = "Note 2";
 
 
-    @Rule
-    public ActivityTestRule<NotesList> activityTestRule =
-            new ActivityTestRule<>(NotesList.class);
-
     private SoloInterface solo;
 
+    public NotePadTest() {
+        super(NotesList.class);
+    }
 
-    @Before
+
+    @Override
     public void setUp() throws Exception {
         //setUp() is run before a test case is started.
         //This is where the solo object is created.
-        Solo.Config config=new Solo.Config();
-        config.commandLogging=true;
-        solo= NewSolo.create(InstrumentationRegistry.getInstrumentation(),config,activityTestRule.getActivity());
-
-        Method[] methods = Solo.class.getMethods();
-        Set<String> methodNameItems=new TreeSet<>();
-        StringBuilder out=new StringBuilder();
-        for(Method method:methods){
-            Type returnType = method.getGenericReturnType();// 返回类型
-            out.append(returnType+" "+method.getName()+"(");
-            Class<?>[] parameterTypes = method.getParameterTypes();
-            for(Class variable:parameterTypes){
-                out.append(variable.getSimpleName()+" ");
-            }
-
-            Log.e(TAG,out.toString());
-            out.delete(0,out.length());
-
-        }
-//        StringBuilder out=new StringBuilder("\n");
-//        int count=0;
-//        List<String> filterItems=new ArrayList<>();
-//        filterItems.add("notify");
-//        filterItems.add("notifyAll");
-//        filterItems.add("equals");
-//        filterItems.add("finalize");
-//        filterItems.add("getClass");
-//        filterItems.add("getConfig");
-//        filterItems.add("wait");
-//        filterItems.add("toString");
-//        for(String name:methodNameItems){
-//            if(!filterItems.contains(name)){
-//                out.append(name+"("+(count++)+"),\n");
-//            }
-//        }
-//        Log.e(TAG,out.toString());
+        super.setUp();
+        solo= NewSolo.create(getInstrumentation(),getActivity());
     }
 
-    @After
+    @Override
     public void tearDown() throws Exception {
         //tearDown() is run after a test case has finished.
         //finishOpenedActivities() will finish all the activities that have been opened during the test execution.
-        solo.finishOpenedActivities();
+        super.tearDown();
+        if (null != solo) {
+            solo.finishOpenedActivities();
+        }
     }
 
     @Test
@@ -146,7 +97,7 @@ public class NotePadTest {
         //Click on button "OK"
         solo.clickOnButton("OK");
         //Click on action menu item Save
-        solo.clickOnView(solo.getView(com.example.android.notepad.R.id.menu_save));
+        solo.clickOnView(solo.getView(R.id.menu_save));
         //Long click Note 2
         solo.clickLongOnText(NOTE_2);
         //Click on Delete
@@ -159,7 +110,7 @@ public class NotePadTest {
         //Click on first item in List
         solo.clickInList(1);
         //Click on delete action menu item
-        solo.clickOnView(solo.getView(com.example.android.notepad.R.id.menu_delete));
+        solo.clickOnView(solo.getView(R.id.menu_delete));
         //Long click first item in List
         solo.clickLongInList(1);
         //Click delete

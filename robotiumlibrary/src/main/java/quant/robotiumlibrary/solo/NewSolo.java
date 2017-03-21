@@ -2,12 +2,14 @@ package quant.robotiumlibrary.solo;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.content.res.Resources;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 
 import com.robotium.solo.Solo;
+
+import junit.framework.TestCase;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +28,11 @@ import quant.robotiumlibrary.R;
 import quant.robotiumlibrary.event.EventItem;
 import quant.robotiumlibrary.event.EventParamItem;
 import quant.robotiumlibrary.event.EventResultItem;
-import quant.robotiumlibrary.process.EventProcessor;
+import quant.robotiumlibrary.file.FilePrefs;
+import quant.robotiumlibrary.process.Processor;
+import quant.robotiumlibrary.process.XmlEventProcessor;
+import quant.robotiumlibrary.property.PropertyProcessor;
+import quant.robotiumlibrary.report.ReportTestRunner;
 
 
 /**
@@ -38,7 +44,7 @@ public final class NewSolo extends Solo implements SoloInterface {
     private static final String TAG="NewSolo";
     private static final SimpleDateFormat FORMATTER =new SimpleDateFormat("MM-dd HH:mm:dd");
     private static final SimpleDateFormat TAKE_SCREENSHOT_FORMATTER=new SimpleDateFormat("ddMMyy-hhmmss");
-    private static final EventProcessor eventProcessor=new EventProcessor();
+    private static final XmlEventProcessor eventProcessor=new XmlEventProcessor();
     //返回结果描述信息
     private static final String TYPE_VIEW="控件";
     private static final String TYPE_TEXT="文字";
@@ -52,22 +58,42 @@ public final class NewSolo extends Solo implements SoloInterface {
 
     private NewSolo(Instrumentation instrumentation, Activity activity) {
         super(instrumentation, activity);
-        loadProperty(instrumentation);
+        initSolo(instrumentation);
     }
 
     private NewSolo(Instrumentation instrumentation, Config config) {
         super(instrumentation, config);
-        loadProperty(instrumentation);
+        initSolo(instrumentation);
     }
+
 
     private NewSolo(Instrumentation instrumentation, Config config, Activity activity) {
         super(instrumentation, config, activity);
-        loadProperty(instrumentation);
+        initSolo(instrumentation);
     }
 
     private NewSolo(Instrumentation instrumentation) {
         super(instrumentation);
+        initSolo(instrumentation);
+    }
+
+    private void initSolo(Instrumentation instrumentation) {
         loadProperty(instrumentation);
+        ensureProperty(instrumentation.getContext());
+        //更改截图保存位置,注意外围设定无效
+        Config config = getConfig();
+        config.screenshotSavePath=FilePrefs.SCREEN_SHOT.getAbsolutePath();
+    }
+
+    private void ensureProperty(Context context) {
+        if(!FilePrefs.PROP_FILE.exists()){
+            PropertyProcessor propertyProcessor = new PropertyProcessor(context);
+            try {
+                propertyProcessor.writerProperties();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -77,7 +103,7 @@ public final class NewSolo extends Solo implements SoloInterface {
     private void loadProperty(Instrumentation instrumentation) {
         InputStreamReader resourceAsStream = null;
         try {
-            InputStream inputStream = instrumentation.getContext().getResources().openRawResource(R.raw.test);
+            InputStream inputStream = instrumentation.getContext().getResources().openRawResource(R.raw.test_cn);
             if(null!=inputStream){
                 resourceAsStream = new InputStreamReader(inputStream,"utf-8");
                 properties.load(resourceAsStream);
@@ -96,41 +122,38 @@ public final class NewSolo extends Solo implements SoloInterface {
     }
 
     public static SoloInterface create(Instrumentation instrumentation, Activity activity){
-        return newProxyInstance(new NewSolo(instrumentation,activity));
+        return newProxyInstance(instrumentation,new NewSolo(instrumentation,activity));
     }
 
     public static SoloInterface create(Instrumentation instrumentation, Config config){
-        return newProxyInstance(new NewSolo(instrumentation,config));
+        return newProxyInstance(instrumentation,new NewSolo(instrumentation,config));
     }
 
     public static SoloInterface create(Instrumentation instrumentation, Config config, Activity activity){
-        return newProxyInstance(new NewSolo(instrumentation,config,activity));
+        return newProxyInstance(instrumentation,new NewSolo(instrumentation,config,activity));
     }
+
 
     public static SoloInterface create(Instrumentation instrumentation){
-        return newProxyInstance(new NewSolo(instrumentation));
+        return newProxyInstance(instrumentation,new NewSolo(instrumentation));
     }
 
-    private static SoloInterface newProxyInstance(final NewSolo solo){
+    private static SoloInterface newProxyInstance(final Instrumentation instrumentation, final NewSolo solo){
         return (SoloInterface) Proxy.newProxyInstance(solo.getClass().getClassLoader(), solo.getClass().getInterfaces(), new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
                 //方法名
                 String methodName = method.getName();
                 //截图,空参数时,需要设定自定义的截图名称
-                if(TAKE_SCREENSHOT.equalsIgnoreCase(methodName)&&null==args){
-                    //无名称,生成名称
-                    args=new Object[]{TAKE_SCREENSHOT_FORMATTER.format(new Date())+".jpg"};
+                if(TAKE_SCREENSHOT.equalsIgnoreCase(methodName)&&(null==args||0==args.length)){
+                    //无名称,生成名称,重新设定调用方法
+                    method=SoloInterface.class.getMethod(methodName,String.class);
+                    args=new Object[]{TAKE_SCREENSHOT_FORMATTER.format(new Date())};
                 }
                 Object invoke = method.invoke(solo, args);
-
                 String methodNameDesc=properties.getProperty(methodName);
                 //处理参数集
                 List<EventParamItem> methodParamsItems = getMethodParamsItems(method, invoke, args);
-                if("searchText".equalsIgnoreCase(methodName)){
-                    System.out.println();
-                }
                 //处理返回值
                 EventResultItem methodResultItem = getMethodResultItem(method, invoke);
                 //生成参数条目
@@ -138,8 +161,13 @@ public final class NewSolo extends Solo implements SoloInterface {
                 eventItem.paramItems.addAll(methodParamsItems);
                 //生成描述信息
                 eventItem.eventString=getEventString(eventItem);
-                Log.e(TAG,eventItem.eventString);
-                eventProcessor.addEvent(eventItem);
+                if(instrumentation instanceof ReportTestRunner){
+                    ReportTestRunner reportTestRunner= (ReportTestRunner) instrumentation;
+                    TestCase testCase = reportTestRunner.getCurrentTestCase();
+                    if(null!=testCase){
+                        eventProcessor.addEvent(testCase.getName(),eventItem);
+                    }
+                }
                 return invoke;
             }
         });
@@ -223,6 +251,10 @@ public final class NewSolo extends Solo implements SoloInterface {
             }
         }
         return eventParamItems;
+    }
+
+    public static Processor getEventProcessor() {
+        return eventProcessor;
     }
 
     private static String getViewInfo(View target) {
