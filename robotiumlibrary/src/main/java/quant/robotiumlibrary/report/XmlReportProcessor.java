@@ -37,6 +37,7 @@ public class XmlReportProcessor implements IReportProcessor {
     private static final String TEST_STEP = "teststep";
     private static final String CLASSNAME = "classname";
     private static final String TIME = "time";
+    private static final String CREATE_TIME="ct";
     private static final String TIMESTAMP = "timestamp";
     private static final String SYSTEM_OUT = "system-out";
     private static final String SYSTEM_ERR = "system-err";
@@ -84,6 +85,7 @@ public class XmlReportProcessor implements IReportProcessor {
         currentXmlSerializer.attribute(null, TESTS, Integer.toString(tests));
         currentXmlSerializer.attribute(null, TIME, Double.toString(time / 1000.0));
         currentXmlSerializer.attribute(null, TIMESTAMP, timestamp);
+        currentXmlSerializer.attribute(null, CREATE_TIME,String.valueOf(System.currentTimeMillis()));
         for (final ReportTestRunner.TestInfo testInfo : testCaseInfo.testMap.values()) {
             writeTestInfo(testInfo);
         }

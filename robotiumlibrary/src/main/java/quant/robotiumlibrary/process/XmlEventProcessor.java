@@ -24,7 +24,6 @@ public class XmlEventProcessor implements Processor<XmlSerializer> {
     private final String METHOD_NAME="name";
     private final String METHOD_DESC="desc";
     private final String METHOD_INFO ="info";
-    private final String METHOD_CT="ct";
 
 
     private final String RETURN_TYPE="r_type";
@@ -68,7 +67,6 @@ public class XmlEventProcessor implements Processor<XmlSerializer> {
         //方法信息
         xmlSerializer.attribute(null, METHOD_NAME, TextUtils.isEmpty(item.name)?"":item.name);
         xmlSerializer.attribute(null, METHOD_DESC, TextUtils.isEmpty(item.desc)?"":item.desc);
-        xmlSerializer.attribute(null, METHOD_CT, String.valueOf(item.ct));
         xmlSerializer.attribute(null, METHOD_INFO, TextUtils.isEmpty(item.eventString)?"":item.eventString);
 //        //方法返回值
         EventResultItem resultItem = item.resultItem;

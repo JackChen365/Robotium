@@ -147,8 +147,8 @@ public final class NewSolo extends Solo implements SoloInterface {
                 //截图,空参数时,需要设定自定义的截图名称
                 if(TAKE_SCREENSHOT.equalsIgnoreCase(methodName)&&(null==args||0==args.length)){
                     //无名称,生成名称,重新设定调用方法
-                    method=SoloInterface.class.getMethod(methodName,String.class);
-                    args=new Object[]{TAKE_SCREENSHOT_FORMATTER.format(new Date())};
+                    method=SoloInterface.class.getMethod(methodName,String.class,int.class);
+                    args=new Object[]{TAKE_SCREENSHOT_FORMATTER.format(new Date()),60};
                 }
                 Object invoke = method.invoke(solo, args);
                 String methodNameDesc=properties.getProperty(methodName);
