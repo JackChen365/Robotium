@@ -3,8 +3,6 @@ package quant.robotiumlibrary.report;
 import android.util.Log;
 import android.util.Xml;
 
-import junit.framework.TestCase;
-
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.File;
@@ -13,6 +11,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 
+import quant.robotiumlibrary.model.TestCaseInfo;
+import quant.robotiumlibrary.model.TestInfo;
 import quant.robotiumlibrary.process.Processor;
 import quant.robotiumlibrary.solo.NewSolo;
 
@@ -60,15 +60,14 @@ public class XmlReportProcessor implements IReportProcessor {
     }
 
     @Override
-    public void process(ReportTestRunner.TestCaseInfo testCaseInfo) throws IOException{
+    public void process(TestCaseInfo testCaseInfo) throws IOException{
         final Package thePackage = testCaseInfo.thePackage;
-        final Class< ? extends TestCase> clazz = testCaseInfo.testCaseClass;
         final int tests = testCaseInfo.testMap.size();
         final String timestamp = getTimestamp();
         int errors = 0;
         int failures = 0;
         int time = 0;
-        for (final ReportTestRunner.TestInfo testInfo : testCaseInfo.testMap.values()) {
+        for (final TestInfo testInfo : testCaseInfo.testMap.values()) {
             if (testInfo.error != null) {
                 errors++;
             }
@@ -80,13 +79,13 @@ public class XmlReportProcessor implements IReportProcessor {
         currentXmlSerializer.startTag(null, TESTSUITE);
         currentXmlSerializer.attribute(null, ERRORS, Integer.toString(errors));
         currentXmlSerializer.attribute(null, FAILURES, Integer.toString(failures));
-        currentXmlSerializer.attribute(null, NAME, clazz.getName());
+        currentXmlSerializer.attribute(null, NAME, testCaseInfo.testCaseClass);
         currentXmlSerializer.attribute(null, PACKAGE, thePackage == null ? "" : thePackage.getName());
         currentXmlSerializer.attribute(null, TESTS, Integer.toString(tests));
         currentXmlSerializer.attribute(null, TIME, Double.toString(time / 1000.0));
         currentXmlSerializer.attribute(null, TIMESTAMP, timestamp);
         currentXmlSerializer.attribute(null, CREATE_TIME,String.valueOf(System.currentTimeMillis()));
-        for (final ReportTestRunner.TestInfo testInfo : testCaseInfo.testMap.values()) {
+        for (final TestInfo testInfo : testCaseInfo.testMap.values()) {
             writeTestInfo(testInfo);
         }
         currentXmlSerializer.startTag(null, SYSTEM_OUT);
@@ -112,10 +111,10 @@ public class XmlReportProcessor implements IReportProcessor {
     }
 
 
-    private void writeTestInfo(final ReportTestRunner.TestInfo testInfo) throws IllegalArgumentException, IllegalStateException,
+    private void writeTestInfo(final TestInfo testInfo) throws IllegalArgumentException, IllegalStateException,
             IOException {
         currentXmlSerializer.startTag(null, TESTCASE);
-        currentXmlSerializer.attribute(null, CLASSNAME, testInfo.testCase.getName());
+        currentXmlSerializer.attribute(null, CLASSNAME, testInfo.testCase);
         currentXmlSerializer.attribute(null, NAME, testInfo.name);
         currentXmlSerializer.attribute(null, TIME, Double.toString(testInfo.time / 1000.0));
         if (testInfo.error != null) {

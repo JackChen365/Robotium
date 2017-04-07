@@ -9,7 +9,7 @@ import android.view.View;
 
 import com.robotium.solo.Solo;
 
-import junit.framework.TestCase;
+import org.junit.runner.Description;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,14 +25,18 @@ import java.util.List;
 import java.util.Properties;
 
 import quant.robotiumlibrary.R;
+import quant.robotiumlibrary.animation.AnimationHelper;
 import quant.robotiumlibrary.event.EventItem;
 import quant.robotiumlibrary.event.EventParamItem;
 import quant.robotiumlibrary.event.EventResultItem;
 import quant.robotiumlibrary.file.FilePrefs;
+import quant.robotiumlibrary.iterator.IteratorProcessor;
+import quant.robotiumlibrary.permission.RunTimePermission;
 import quant.robotiumlibrary.process.Processor;
 import quant.robotiumlibrary.process.XmlEventProcessor;
 import quant.robotiumlibrary.property.PropertyProcessor;
-import quant.robotiumlibrary.report.ReportTestRunner;
+import quant.robotiumlibrary.report.JunitTestListener;
+import quant.robotiumlibrary.report.JunitTestRunListenerWrapper;
 
 
 /**
@@ -56,24 +60,23 @@ public final class NewSolo extends Solo implements SoloInterface {
 
     protected static final Properties properties=new Properties();
 
-    private NewSolo(Instrumentation instrumentation, Activity activity) {
-        super(instrumentation, activity);
-        initSolo(instrumentation);
+
+    private NewSolo(Instrumentation instrumentation) {
+        this(instrumentation,new SoloConfig());
     }
 
-    private NewSolo(Instrumentation instrumentation, Config config) {
+    private NewSolo(Instrumentation instrumentation, Activity activity) {
+        this(instrumentation,new SoloConfig(), activity);
+    }
+
+    private NewSolo(Instrumentation instrumentation, SoloConfig config) {
         super(instrumentation, config);
         initSolo(instrumentation);
     }
 
 
-    private NewSolo(Instrumentation instrumentation, Config config, Activity activity) {
+    private NewSolo(Instrumentation instrumentation, SoloConfig config, Activity activity) {
         super(instrumentation, config, activity);
-        initSolo(instrumentation);
-    }
-
-    private NewSolo(Instrumentation instrumentation) {
-        super(instrumentation);
         initSolo(instrumentation);
     }
 
@@ -125,11 +128,11 @@ public final class NewSolo extends Solo implements SoloInterface {
         return newProxyInstance(instrumentation,new NewSolo(instrumentation,activity));
     }
 
-    public static SoloInterface create(Instrumentation instrumentation, Config config){
+    public static SoloInterface create(Instrumentation instrumentation, SoloConfig config){
         return newProxyInstance(instrumentation,new NewSolo(instrumentation,config));
     }
 
-    public static SoloInterface create(Instrumentation instrumentation, Config config, Activity activity){
+    public static SoloInterface create(Instrumentation instrumentation, SoloConfig config, Activity activity){
         return newProxyInstance(instrumentation,new NewSolo(instrumentation,config,activity));
     }
 
@@ -161,12 +164,11 @@ public final class NewSolo extends Solo implements SoloInterface {
                 eventItem.paramItems.addAll(methodParamsItems);
                 //生成描述信息
                 eventItem.eventString=getEventString(eventItem);
-                if(instrumentation instanceof ReportTestRunner){
-                    ReportTestRunner reportTestRunner= (ReportTestRunner) instrumentation;
-                    TestCase testCase = reportTestRunner.getCurrentTestCase();
-                    if(null!=testCase){
-                        eventProcessor.addEvent(testCase.getName(),eventItem);
-                    }
+                JunitTestRunListenerWrapper listenerWrapper = JunitTestListener.getListenerWrapper();
+                JunitTestListener junitTestListener = listenerWrapper.get();
+                if(null!=junitTestListener){
+                    Description currentDescription = junitTestListener.getCurrentDescription();
+                    eventProcessor.addEvent(currentDescription.getMethodName(),eventItem);
                 }
                 return invoke;
             }
@@ -253,6 +255,11 @@ public final class NewSolo extends Solo implements SoloInterface {
         return eventParamItems;
     }
 
+    @Override
+    public SoloConfig getConfig() {
+        return (SoloConfig) super.getConfig();
+    }
+
     public static Processor getEventProcessor() {
         return eventProcessor;
     }
@@ -269,4 +276,14 @@ public final class NewSolo extends Solo implements SoloInterface {
     }
 
 
+    @Override
+    public void acrossForPermission(Instrumentation instrumentation) {
+        RunTimePermission.create(getCurrentActivity(),instrumentation.getTargetContext().getPackageName(),instrumentation).requestPermissions();
+    }
+
+    @Override
+    public void autoIterator(Instrumentation instrumentation) {
+        AnimationHelper.startTestAnim(getCurrentActivity());
+        IteratorProcessor.getInstance(this).startIterator(this,instrumentation);
+    }
 }

@@ -18,7 +18,6 @@ import android.widget.TimePicker;
 import com.robotium.solo.By;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Illustration;
-import com.robotium.solo.Solo;
 import com.robotium.solo.WebElement;
 
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ import java.util.ArrayList;
  */
 public interface SoloInterface {
     Instrumentation.ActivityMonitor getActivityMonitor();
-    Solo.Config getConfig();
+    SoloConfig getConfig();
     ArrayList<View> getViews();
     ArrayList<View> getViews(@Param("parent") View parent);
     View getTopParent(@Param("view") View view);
@@ -245,5 +244,18 @@ public interface SoloInterface {
     void startScreenshotSequence(@Param("name") String name);
     void startScreenshotSequence(@Param("name") String name, @Param("quality") int quality, @Param("frameDelay") int frameDelay, @Param("maxFrames") int maxFrames);
     void stopScreenshotSequence();
+
+    //-------------------------------手动动定添加方法-------------------------------
+
+    /**
+     * 起始绕过权限
+     */
+    void acrossForPermission(@Param("instrumentation") Instrumentation instrumentation);
+
+    /**
+     * 自动遍历
+     */
+    void autoIterator(@Param("instrumentation") Instrumentation instrumentation);
+
 
 }
