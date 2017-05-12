@@ -18,6 +18,10 @@ public class FilePrefs {
         REPORT_FOLDER = new File(APP_FILE, "/report/");
         SCREEN_SHOT=new File(REPORT_FOLDER,"/screenShot/");
         PROP_FILE=new File(REPORT_FOLDER,"properties.xml");
+        ensureFolder();
+    }
+
+    public static void ensureFolder(){
         mkdirs(APP_FILE, REPORT_FOLDER,SCREEN_SHOT);
     }
 
@@ -32,6 +36,7 @@ public class FilePrefs {
     }
 
     public static File getReportFile(){
+        ensureFolder();
         return new File(REPORT_FOLDER,System.currentTimeMillis()+".xml");
     }
 

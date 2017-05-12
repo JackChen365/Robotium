@@ -119,7 +119,7 @@ public class RunTimePermission {
             uiAutomation.setOnAccessibilityEventListener(new UiAutomation.OnAccessibilityEventListener() {
                 @Override
                 public void onAccessibilityEvent(AccessibilityEvent event) {
-                    if (Build.MANUFACTURER.toLowerCase().contains("xiao mi")) {
+                    if (Build.MANUFACTURER.toLowerCase().replaceAll("\\s","").contains("xiaomi")) {
                         handlePermissions(event, PACKAGE_INSTALLER_XIAOMI, PERMISSION_ALLOW_ID_XIAOMI);
                     } else {
                         handlePermissions(event, PACKAGE_INSTALLER, PERMISSION_ALLOW_ID);
@@ -149,7 +149,7 @@ public class RunTimePermission {
         boolean result=false;
         if (null!=event&&!TextUtils.isEmpty(packageInstaller)&&packageInstaller.contains(event.getPackageName())) {
             AccessibilityNodeInfo source = event.getSource();
-            if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN_MR2&&null!=source) {
+            if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP&&null!=source) {
                 List<AccessibilityNodeInfo> infoList = source.findAccessibilityNodeInfosByViewId(permissionAllowId);
                 if(null!=infoList&&!infoList.isEmpty()){
                     result = performClick(infoList.get(0));
@@ -188,8 +188,9 @@ public class RunTimePermission {
         String[] permissions = filterPermissions();
         if(null!=permissions){
             for (String p: permissions) {
-                int mPermission = ContextCompat.checkSelfPermission(context, p);
-                if (mPermission != PackageManager.PERMISSION_GRANTED) requestPermissions.add(p);
+                if (PackageManager.PERMISSION_GRANTED!=ContextCompat.checkSelfPermission(context, p)) {
+                    requestPermissions.add(p);
+                }
             }
         }
         return requestPermissions.toArray(new String[requestPermissions.size()]);
@@ -205,7 +206,9 @@ public class RunTimePermission {
         if(null!=packagePermissions){
             for (String permission: permissionGroup) {
                 for (String s: packagePermissions) {
-                    if (permission.contains(s)) filter.add(permission);
+                    if (permission.contains(s)){
+                        filter.add(permission);
+                    }
                 }
             }
         }
