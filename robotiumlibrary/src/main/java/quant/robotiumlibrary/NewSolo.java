@@ -1,4 +1,4 @@
-package quant.robotiumlibrary.solo;
+package quant.robotiumlibrary;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ListView;
 
 import com.robotium.solo.Solo;
+import com.robotium.solo.Timeout;
 
 import org.junit.runner.Description;
 
@@ -24,12 +26,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import quant.robotiumlibrary.R;
 import quant.robotiumlibrary.animation.AnimationHelper;
 import quant.robotiumlibrary.event.EventItem;
 import quant.robotiumlibrary.event.EventParamItem;
 import quant.robotiumlibrary.event.EventResultItem;
 import quant.robotiumlibrary.file.FilePrefs;
+import quant.robotiumlibrary.waiter.ActivityWaiter;
+import quant.robotiumlibrary.waiter.ViewWaiter;
 import quant.robotiumlibrary.iterator.IteratorProcessor;
 import quant.robotiumlibrary.permission.RunTimePermission;
 import quant.robotiumlibrary.process.Processor;
@@ -44,7 +47,7 @@ import quant.robotiumlibrary.report.JunitTestRunListenerWrapper;
  * 统计报告封装对象
  */
 
-public final class NewSolo extends Solo implements SoloInterface {
+public final class NewSolo extends Solo implements ISolo {
     private static final String TAG="NewSolo";
     private static final SimpleDateFormat FORMATTER =new SimpleDateFormat("MM-dd HH:mm:dd");
     private static final SimpleDateFormat TAKE_SCREENSHOT_FORMATTER=new SimpleDateFormat("ddMMyy-hhmmss");
@@ -58,7 +61,15 @@ public final class NewSolo extends Solo implements SoloInterface {
     private static final String RESOURCE_ID="id";
     private static final String TAKE_SCREENSHOT="takeScreenshot";
 
+    //View变化标记
+    public static final int VIEW_VISIBLE_CHANGED= ViewWaiter.VIEW_VISIBLE_CHANGED;//隐藏显示变化
+    public static final int VIEW_CHILD_CHANGED=ViewWaiter.VIEW_CHILD_CHANGED;//子孩子变化
+    public static final int VIEW_LOCALTION_CHANGED=ViewWaiter.VIEW_LOCAL_CHANGED;//位置变化
+    public static final int VIEW_SIZE_CHANGED=ViewWaiter.VIEW_SIZE_CHANGED;//大小变化
+
+
     protected static final Properties properties=new Properties();
+    private final ActivityWaiter activityWaiter;
 
 
     private NewSolo(Instrumentation instrumentation) {
@@ -72,12 +83,14 @@ public final class NewSolo extends Solo implements SoloInterface {
     private NewSolo(Instrumentation instrumentation, SoloConfig config) {
         super(instrumentation, config);
         initSolo(instrumentation);
+        this.activityWaiter=new ActivityWaiter(this);
     }
 
 
     private NewSolo(Instrumentation instrumentation, SoloConfig config, Activity activity) {
         super(instrumentation, config, activity);
         initSolo(instrumentation);
+        this.activityWaiter=new ActivityWaiter(this);
     }
 
     private void initSolo(Instrumentation instrumentation) {
@@ -124,25 +137,25 @@ public final class NewSolo extends Solo implements SoloInterface {
         }
     }
 
-    public static SoloInterface create(Instrumentation instrumentation, Activity activity){
+    public static ISolo create(Instrumentation instrumentation, Activity activity){
         return newProxyInstance(instrumentation,new NewSolo(instrumentation,activity));
     }
 
-    public static SoloInterface create(Instrumentation instrumentation, SoloConfig config){
+    public static ISolo create(Instrumentation instrumentation, SoloConfig config){
         return newProxyInstance(instrumentation,new NewSolo(instrumentation,config));
     }
 
-    public static SoloInterface create(Instrumentation instrumentation, SoloConfig config, Activity activity){
+    public static ISolo create(Instrumentation instrumentation, SoloConfig config, Activity activity){
         return newProxyInstance(instrumentation,new NewSolo(instrumentation,config,activity));
     }
 
 
-    public static SoloInterface create(Instrumentation instrumentation){
+    public static ISolo create(Instrumentation instrumentation){
         return newProxyInstance(instrumentation,new NewSolo(instrumentation));
     }
 
-    private static SoloInterface newProxyInstance(final Instrumentation instrumentation, final NewSolo solo){
-        return (SoloInterface) Proxy.newProxyInstance(solo.getClass().getClassLoader(), solo.getClass().getInterfaces(), new InvocationHandler() {
+    private static ISolo newProxyInstance(final Instrumentation instrumentation, final NewSolo solo){
+        return (ISolo) Proxy.newProxyInstance(solo.getClass().getClassLoader(), solo.getClass().getInterfaces(), new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 //方法名
@@ -150,7 +163,7 @@ public final class NewSolo extends Solo implements SoloInterface {
                 //截图,空参数时,需要设定自定义的截图名称
                 if(TAKE_SCREENSHOT.equalsIgnoreCase(methodName)&&(null==args||0==args.length)){
                     //无名称,生成名称,重新设定调用方法
-                    method=SoloInterface.class.getMethod(methodName,String.class,int.class);
+                    method=ISolo.class.getMethod(methodName,String.class,int.class);
                     args=new Object[]{TAKE_SCREENSHOT_FORMATTER.format(new Date()),60};
                 }
                 Object invoke = method.invoke(solo, args);
@@ -285,5 +298,20 @@ public final class NewSolo extends Solo implements SoloInterface {
     public void autoIterator(Instrumentation instrumentation) {
         AnimationHelper.startTestAnim(getCurrentActivity());
         IteratorProcessor.getInstance(this).startIterator(this,instrumentation);
+    }
+
+    @Override
+    public boolean waitActivityChanged() {
+        return activityWaiter.waitActivityChanged(Timeout.getLargeTimeout());
+    }
+
+    @Override
+    public boolean waitActivityChanged(@Param("timeout") int timeout) {
+        return activityWaiter.waitActivityChanged(timeout);
+    }
+
+    @Override
+    public boolean waitListChanged(ListView listView, @Param("timeout") int timeout) {
+        return false;
     }
 }

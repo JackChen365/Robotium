@@ -1,4 +1,4 @@
-package quant.robotiumlibrary.solo;
+package quant.robotiumlibrary;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -10,6 +10,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SlidingDrawer;
 import android.widget.TextView;
@@ -26,7 +27,7 @@ import java.util.ArrayList;
  * Created by cz on 2017/3/17.
  * 以下接口方法,由代码生成,为实现动态代理,劫持方法调用
  */
-public interface SoloInterface {
+public interface ISolo {
     Instrumentation.ActivityMonitor getActivityMonitor();
     SoloConfig getConfig();
     ArrayList<View> getViews();
@@ -256,6 +257,12 @@ public interface SoloInterface {
      * 自动遍历
      */
     void autoIterator(@Param("instrumentation") Instrumentation instrumentation);
+
+    boolean waitActivityChanged();
+
+    boolean waitActivityChanged(@Param("timeout") int timeout);
+
+    boolean waitListChanged(ListView listView, @Param("timeout") int timeout);
 
 
 }

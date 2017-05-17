@@ -9,8 +9,8 @@ import java.util.ArrayList;
 
 import quant.robotiumlibrary.data.DataProvider;
 import quant.robotiumlibrary.iterator.IteratorCallback;
-import quant.robotiumlibrary.solo.SoloConfig;
-import quant.robotiumlibrary.solo.SoloInterface;
+import quant.robotiumlibrary.ISolo;
+import quant.robotiumlibrary.SoloConfig;
 
 /**
  * Created by cz on 2017/4/7.
@@ -18,7 +18,7 @@ import quant.robotiumlibrary.solo.SoloInterface;
 
 public class WebViewStrategy implements ViewStrategic<WebView> {
     @Override
-    public void process(IteratorCallback callback, SoloInterface solo, WebView source) {
+    public void process(IteratorCallback callback, ISolo solo, WebView source) {
         SoloConfig config = solo.getConfig();
         while(100>source.getProgress()){
             solo.sleep(config.sleepMiniDuration);

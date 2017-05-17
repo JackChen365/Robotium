@@ -1,4 +1,4 @@
-package quant.robotiumlibrary.solo;
+package quant.robotiumlibrary;
 
 import com.robotium.solo.Solo;
 

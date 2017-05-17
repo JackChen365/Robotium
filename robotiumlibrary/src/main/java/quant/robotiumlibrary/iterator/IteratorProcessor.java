@@ -27,8 +27,8 @@ import quant.robotiumlibrary.iterator.strategy.RecyclerViewStrategy;
 import quant.robotiumlibrary.iterator.strategy.ViewPagerStrategy;
 import quant.robotiumlibrary.iterator.strategy.ViewStrategic;
 import quant.robotiumlibrary.iterator.strategy.WebViewStrategy;
-import quant.robotiumlibrary.solo.NewSolo;
-import quant.robotiumlibrary.solo.SoloInterface;
+import quant.robotiumlibrary.ISolo;
+import quant.robotiumlibrary.NewSolo;
 
 /**
  * Created by cz on 2017/4/6.
@@ -41,7 +41,7 @@ public class IteratorProcessor implements ActivityLifecycleCallback,IteratorCall
     private final Map<Class<? extends View>,Class<? extends ViewStrategic>> strategyClassItems;
     private final LinkedList<ActivityBundle> activityBundles;
     private final ActivityChecker activityChecker;
-    public static IteratorProcessor getInstance(SoloInterface solo){
+    public static IteratorProcessor getInstance(ISolo solo){
         if(null==instance){
             synchronized (IteratorProcessor.class){
                 if(null==instance){
@@ -52,7 +52,7 @@ public class IteratorProcessor implements ActivityLifecycleCallback,IteratorCall
         return instance;
     }
 
-    private IteratorProcessor(SoloInterface solo){
+    private IteratorProcessor(ISolo solo){
         activityChecker=new ActivityChecker(solo);
         activityBundles=new LinkedList<>();
         strategyCacheItems =new HashMap<>();
@@ -85,7 +85,7 @@ public class IteratorProcessor implements ActivityLifecycleCallback,IteratorCall
      * @param strategyItems
      * @param currentActivity
      */
-    private void processActivity(NewSolo solo, Instrumentation instrumentation, Map<Class<? extends View>, Class<? extends ViewStrategic>> strategyItems,final Activity currentActivity) {
+    private void processActivity(NewSolo solo, Instrumentation instrumentation, Map<Class<? extends View>, Class<? extends ViewStrategic>> strategyItems, final Activity currentActivity) {
         //记录activity变化
         ActivityLifecycleMonitorRegistry.getInstance().removeLifecycleCallback(this);
         ActivityLifecycleMonitorRegistry.getInstance().addLifecycleCallback(this);
@@ -104,7 +104,7 @@ public class IteratorProcessor implements ActivityLifecycleCallback,IteratorCall
      * @param strategyItems
      * @param currentActivity
      */
-    private void loopNextActivity(NewSolo solo, Instrumentation instrumentation, Map<Class<? extends View>, Class<? extends ViewStrategic>> strategyItems,final Activity currentActivity) {
+    private void loopNextActivity(NewSolo solo, Instrumentation instrumentation, Map<Class<? extends View>, Class<? extends ViewStrategic>> strategyItems, final Activity currentActivity) {
         //遍历完,取下一步需要遍历界面
         ActivityBundle activityBundle = activityBundles.pollFirst();
         Intent activityIntent = activityBundle.getActivityIntent(currentActivity);

@@ -5,7 +5,7 @@ import android.widget.ListAdapter;
 
 import quant.robotiumlibrary.checker.ActivityChecker;
 import quant.robotiumlibrary.iterator.IteratorCallback;
-import quant.robotiumlibrary.solo.SoloInterface;
+import quant.robotiumlibrary.ISolo;
 
 /**
  * Created by cz on 2017/4/7.
@@ -13,7 +13,7 @@ import quant.robotiumlibrary.solo.SoloInterface;
 
 public class AbsListViewStrategy implements ViewStrategic<AbsListView> {
     @Override
-    public void process(IteratorCallback callback,SoloInterface solo, AbsListView source) {
+    public void process(IteratorCallback callback, ISolo solo, AbsListView source) {
         ListAdapter adapter = source.getAdapter();
         ActivityChecker activityChecker = callback.getActivityChecker();
         if(null!=adapter&&0<adapter.getCount()){

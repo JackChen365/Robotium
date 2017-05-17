@@ -3,7 +3,7 @@ package quant.robotiumlibrary.iterator.strategy;
 import android.support.v7.widget.RecyclerView;
 
 import quant.robotiumlibrary.iterator.IteratorCallback;
-import quant.robotiumlibrary.solo.SoloInterface;
+import quant.robotiumlibrary.ISolo;
 
 /**
  * Created by cz on 2017/4/7.
@@ -12,7 +12,7 @@ import quant.robotiumlibrary.solo.SoloInterface;
 public class RecyclerViewStrategy implements ViewStrategic<RecyclerView> {
 
     @Override
-    public void process(IteratorCallback callback, SoloInterface solo, RecyclerView source) {
+    public void process(IteratorCallback callback, ISolo solo, RecyclerView source) {
         //点击recyclerView内每一个条目
         RecyclerView.Adapter adapter = source.getAdapter();
         if(null!=adapter&&0<adapter.getItemCount()){

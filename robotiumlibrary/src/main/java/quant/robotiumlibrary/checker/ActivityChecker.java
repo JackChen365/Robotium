@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.view.View;
 import android.view.Window;
 
-import quant.robotiumlibrary.solo.SoloInterface;
+import quant.robotiumlibrary.ISolo;
 
 /**
  * Created by cz on 2017/4/7.
@@ -13,7 +13,7 @@ import quant.robotiumlibrary.solo.SoloInterface;
 public class ActivityChecker extends ElementChecker{
     private Activity activity;
 
-    public ActivityChecker(SoloInterface solo) {
+    public ActivityChecker(ISolo solo) {
         super(solo);
     }
 

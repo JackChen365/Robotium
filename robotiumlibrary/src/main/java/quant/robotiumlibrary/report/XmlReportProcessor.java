@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat;
 import quant.robotiumlibrary.model.TestCaseInfo;
 import quant.robotiumlibrary.model.TestInfo;
 import quant.robotiumlibrary.process.Processor;
-import quant.robotiumlibrary.solo.NewSolo;
+import quant.robotiumlibrary.NewSolo;
 
 import static android.content.ContentValues.TAG;
 

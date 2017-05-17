@@ -1,15 +1,15 @@
 package quant.robotiumlibrary.checker;
 
-import quant.robotiumlibrary.solo.SoloInterface;
+import quant.robotiumlibrary.ISolo;
 
 /**
  * Created by cz on 2017/4/7.
  */
 
 public abstract class ElementChecker {
-    public final SoloInterface solo;
+    public final ISolo solo;
 
-    public ElementChecker(SoloInterface solo) {
+    public ElementChecker(ISolo solo) {
         this.solo = solo;
     }
 

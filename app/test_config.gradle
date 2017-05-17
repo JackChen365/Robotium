@@ -188,7 +188,7 @@ class TestWorker {
 
 
 task "updateTestConfig"<<{
-    def classFile=new File("app/src/androidTest/java/com/robotium/solo/quant/group/NewSolo.java")
+    def classFile=new File("app/src/androidTest/java/com/robotium/solo/quant/group/NewISolo.java")
     def assetFolder=new File("app/src/main/assets/")
     new TestWorker(assetFolder,classFile).analysis()
 }

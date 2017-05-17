@@ -5,7 +5,7 @@ import android.widget.EditText;
 
 import quant.robotiumlibrary.data.DataProvider;
 import quant.robotiumlibrary.iterator.IteratorCallback;
-import quant.robotiumlibrary.solo.SoloInterface;
+import quant.robotiumlibrary.ISolo;
 
 /**
  * Created by cz on 2017/4/7.
@@ -18,7 +18,7 @@ public class EditTextStrategy implements ViewStrategic<EditText> {
     private static final int DEFAULT_URI_SIZE=10;
 
     @Override
-    public void process(IteratorCallback callback, SoloInterface solo, EditText source) {
+    public void process(IteratorCallback callback, ISolo solo, EditText source) {
         int inputType = source.getInputType();
         switch (inputType){
             case InputType.TYPE_CLASS_PHONE:

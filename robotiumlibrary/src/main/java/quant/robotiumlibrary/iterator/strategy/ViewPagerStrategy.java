@@ -5,7 +5,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 
 import quant.robotiumlibrary.iterator.IteratorCallback;
-import quant.robotiumlibrary.solo.SoloInterface;
+import quant.robotiumlibrary.ISolo;
 
 /**
  * Created by cz on 2017/4/7.
@@ -14,7 +14,7 @@ import quant.robotiumlibrary.solo.SoloInterface;
 public class ViewPagerStrategy implements ViewStrategic<ViewPager> {
 
     @Override
-    public void process(IteratorCallback callback, SoloInterface solo, ViewPager source) {
+    public void process(IteratorCallback callback, ISolo solo, ViewPager source) {
         PagerAdapter adapter = source.getAdapter();
         if(null!=adapter){
             if(adapter instanceof FragmentPagerAdapter){
