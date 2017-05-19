@@ -101,17 +101,10 @@ public class RunTimePermission {
     }
 
     /**
-     * Returns Manufacturer.
-     */
-    private String getManufacturer(){
-        return Build.MANUFACTURER;
-    }
-
-    /**
      * Requests permissions to be granted to this application.
      */
     public void requestPermissions(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             String[] permissions = checkPermissions();
             if (permissions == null || permissions.length == 0) return;
             ActivityCompat.requestPermissions((Activity) context, permissions, 10000);

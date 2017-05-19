@@ -12,16 +12,24 @@
 
 package com.example.android.notepad;
 
+import android.os.Environment;
 import android.test.ActivityInstrumentationTestCase2;
+import android.util.Xml;
 
 import org.junit.Test;
+import org.xmlpull.v1.XmlSerializer;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import quant.robotiumlibrary.ISolo;
 import quant.robotiumlibrary.NewSolo;
+import quant.robotiumlibrary.Param;
 
 
 public class ApplicationTest extends ActivityInstrumentationTestCase2<NotesList> {
@@ -75,16 +83,54 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<NotesList>
         });
     }
 
+    @Test
+    public void testWriteSoloMethodItems() throws Exception {
+        File newXmlFile = new File(Environment.getExternalStorageDirectory(),"solo.xml");
+        FileOutputStream fos;
+        newXmlFile.createNewFile();
+        fos = new FileOutputStream(newXmlFile);
+        XmlSerializer serializer = Xml.newSerializer();
+        serializer.setOutput(fos, "UTF-8");
+        serializer.startDocument("UTF-8", null);
+        serializer.startTag(null, "solo");
+        Method[] methods = ISolo.class.getMethods();
+        for(Method method:methods){
+            serializer.startTag(null, "method");
+            serializer.attribute(null, "name", method.getName());
+            //返回值
+            serializer.attribute(null, "return", method.getReturnType().getName());
+            //参数类型
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+            for(int i=0;i<parameterAnnotations.length;i++){
+                Class<?> clazz = parameterTypes[i];
+                Annotation[] annotations = parameterAnnotations[i];
+                for(Annotation annotation:annotations){
+                    if(null!=annotation&&annotation instanceof Param){
+                        serializer.startTag(null, "parameter");
+                        serializer.attribute(null, "class",clazz.getName());
+                        serializer.attribute(null, "name",clazz.getSimpleName());
+                        serializer.attribute(null, "text",((Param)annotation).value());
+                        serializer.endTag(null, "parameter");
+                    }
+                }
+            }
+            serializer.endTag(null, "method");
+        }
+        serializer.endTag(null, "solo");
+        serializer.endDocument();
+
+        serializer.flush();
+        fos.close();
+    }
+
     @Override
     public void tearDown() throws Exception {
         //tearDown() is run after a test case has finished.
         //finishOpenedActivities() will finish all the activities that have been opened during the test execution.
+        solo.finishOpenedActivities();
         super.tearDown();
-        if (null != solo) {
-            solo.finishOpenedActivities();
-        }
     }
-
     @Test
     public void testAddNote() throws Exception {
         solo.unlockScreen();
@@ -93,16 +139,22 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<NotesList>
 //        NotificationHelper.sendNotification(getInstrumentation(), getActivity().getClass(),"提示您!", "发送通知!");
         //Click on action menu item add
         solo.clickOnView(solo.getView(com.example.android.notepad.R.id.menu_add));
+        solo.takeScreenshot();
         //Assert that NoteEditor activity is opened
         solo.assertCurrentActivity("Expected NoteEditor Activity", NoteEditor.class);
+        solo.takeScreenshot();
         //In text field 0, enter Note 1
         solo.enterText(0, NOTE_1);
+        solo.takeScreenshot();
         //Click on action menu item Save
         solo.clickOnView(solo.getView(com.example.android.notepad.R.id.menu_save));
+        solo.takeScreenshot();
         //Click on action menu item Add
         solo.clickOnView(solo.getView(com.example.android.notepad.R.id.menu_add));
+        solo.takeScreenshot();
         //In text field 0, type Note 2
         solo.typeText(0, NOTE_2);
+        solo.takeScreenshot();
         //Click on action menu item Save
         solo.clickOnView(solo.getView(com.example.android.notepad.R.id.menu_save));
         //Takes a screenshot and saves it in "/sdcard/Robotium-Screenshots/".
@@ -114,8 +166,10 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<NotesList>
         }
         //Search for Note 1 and Note 2
         boolean notesFound = solo.searchText(NOTE_1) && solo.searchText(NOTE_2);
+        solo.takeScreenshot();
         //To clean up after the test case
         deleteNotes();
+        solo.takeScreenshot();
         //Assert that Note 1 & Note 2 are found
         assertTrue("Note 1 and/or Note 2 are not found", notesFound);
     }
@@ -124,21 +178,27 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<NotesList>
     public void testEditNoteTitle() throws Exception {
         //Click on add action menu item
         solo.clickOnView(solo.getView(com.example.android.notepad.R.id.menu_add));
+        solo.takeScreenshot();
         //In text field 0, enter Note 1
         solo.enterText(0, NOTE_1);
+        solo.takeScreenshot();
         //Press hard key back button
         solo.goBack();
         solo.clickOnText(NOTE_1);
+        solo.takeScreenshot();
         //Click on menu item "Edit title"
         solo.clickOnMenuItem("Edit title");
+        solo.takeScreenshot();
         //Clear the edit text field
         solo.clearEditText(0);
         //In the text field enter Note 2
         solo.enterText(0, NOTE_2);
+        solo.takeScreenshot();
         //Click on button "OK"
         solo.clickOnButton("OK");
         //Click on action menu item Save
         solo.clickOnView(solo.getView(R.id.menu_save));
+        solo.takeScreenshot();
         //Long click Note 2
         solo.clickLongOnText(NOTE_2);
         //Click on Delete

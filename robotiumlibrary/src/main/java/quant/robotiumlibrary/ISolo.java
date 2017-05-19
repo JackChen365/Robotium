@@ -23,6 +23,8 @@ import com.robotium.solo.WebElement;
 
 import java.util.ArrayList;
 
+import quant.robotiumlibrary.annotation.FutureMethod;
+
 /**
  * Created by cz on 2017/3/17.
  * 以下接口方法,由代码生成,为实现动态代理,劫持方法调用
@@ -67,9 +69,9 @@ public interface ISolo {
     void setActivityOrientation(@Param("orientation") int orientation);
     Activity getCurrentActivity();
     void assertCurrentActivity(@Param("message") String message, @Param("name") String name);
-    void assertCurrentActivity(@Param("message") String message, @SuppressWarnings("rawtypes") Class activityClass);
+    void assertCurrentActivity(@Param("message") String message, @Param("activityClass") Class activityClass);
     void assertCurrentActivity(@Param("message") String message, @Param("name") String name, @Param("isNewInstance") boolean isNewInstance);
-    void assertCurrentActivity(@Param("message") String message, @SuppressWarnings("rawtypes") Class activityClass, boolean isNewInstance);
+    void assertCurrentActivity(@Param("message") String message, @Param("activityClass") Class activityClass, boolean isNewInstance);
     void assertMemoryNotLow();
     boolean waitForDialogToOpen();
     boolean waitForDialogToClose();
@@ -251,11 +253,13 @@ public interface ISolo {
     /**
      * 起始绕过权限
      */
+    @FutureMethod
     void acrossForPermission(@Param("instrumentation") Instrumentation instrumentation);
 
     /**
      * 自动遍历
      */
+    @FutureMethod
     void autoIterator(@Param("instrumentation") Instrumentation instrumentation);
 
     boolean waitActivityChanged();
