@@ -32,7 +32,6 @@ import quant.robotiumlibrary.event.EventParamItem;
 import quant.robotiumlibrary.event.EventResultItem;
 import quant.robotiumlibrary.file.FilePrefs;
 import quant.robotiumlibrary.waiter.ActivityWaiter;
-import quant.robotiumlibrary.waiter.ViewWaiter;
 import quant.robotiumlibrary.iterator.IteratorProcessor;
 import quant.robotiumlibrary.permission.RunTimePermission;
 import quant.robotiumlibrary.process.Processor;
@@ -62,10 +61,10 @@ public final class NewSolo extends Solo implements ISolo {
     private static final String TAKE_SCREENSHOT="takeScreenshot";
 
     //View变化标记
-    public static final int VIEW_VISIBLE_CHANGED= ViewWaiter.VIEW_VISIBLE_CHANGED;//隐藏显示变化
-    public static final int VIEW_CHILD_CHANGED=ViewWaiter.VIEW_CHILD_CHANGED;//子孩子变化
-    public static final int VIEW_LOCALTION_CHANGED=ViewWaiter.VIEW_LOCAL_CHANGED;//位置变化
-    public static final int VIEW_SIZE_CHANGED=ViewWaiter.VIEW_SIZE_CHANGED;//大小变化
+//    public static final int VIEW_VISIBLE_CHANGED= ViewWaiter.VIEW_VISIBLE_CHANGED;//隐藏显示变化
+//    public static final int VIEW_CHILD_CHANGED=ViewWaiter.VIEW_CHILD_CHANGED;//子孩子变化
+//    public static final int VIEW_LOCALTION_CHANGED=ViewWaiter.VIEW_LOCAL_CHANGED;//位置变化
+//    public static final int VIEW_SIZE_CHANGED=ViewWaiter.VIEW_SIZE_CHANGED;//大小变化
 
 
     protected static final Properties properties=new Properties();
