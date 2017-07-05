@@ -7,7 +7,6 @@ import android.support.test.runner.lifecycle.ActivityLifecycleCallback;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.runner.lifecycle.Stage;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -23,7 +22,6 @@ import quant.robotiumlibrary.callback.IteratorRegistry;
 import quant.robotiumlibrary.checker.ActivityChecker;
 import quant.robotiumlibrary.iterator.strategy.AbsListViewStrategy;
 import quant.robotiumlibrary.iterator.strategy.EditTextStrategy;
-import quant.robotiumlibrary.iterator.strategy.RecyclerViewStrategy;
 import quant.robotiumlibrary.iterator.strategy.ViewPagerStrategy;
 import quant.robotiumlibrary.iterator.strategy.ViewStrategic;
 import quant.robotiumlibrary.iterator.strategy.WebViewStrategy;
@@ -60,7 +58,6 @@ public class IteratorProcessor implements ActivityLifecycleCallback,IteratorCall
         //添加默认操作条目
         strategyClassItems.put(AbsListView.class, AbsListViewStrategy.class);
         strategyClassItems.put(EditText.class, EditTextStrategy.class);
-        strategyClassItems.put(RecyclerView.class, RecyclerViewStrategy.class);
         strategyClassItems.put(ViewPager.class, ViewPagerStrategy.class);
         strategyClassItems.put(WebView.class, WebViewStrategy.class);
     }
