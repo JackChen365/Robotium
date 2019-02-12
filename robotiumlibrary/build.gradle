@@ -1,13 +1,9 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
-version = "1.0.5"
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 25
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName version
     }
@@ -20,85 +16,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
 }
-def siteUrl = 'https://github.com/momodae/Robotium'
-def gitUrl = 'https://github.com/momodae/Robotium.git'
-group = "com.quant.robotium"
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging 'aar'
-                // Add your description here
-                name 'Android Robotium'
-                url siteUrl
-                // Set your license
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'czz'
-                        name 'cz'
-                        email 'bingo110@126.com'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-                }
-            }
-        }
-    }
-}
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    destinationDir = file("../javadoc/")
-    failOnError false
-}
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-    configurations = ['archives']
-    pkg {
-        repo = "maven"
-        name = "Robotium"  //发布到Bintray上的项目名字
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
-        publish = true
-    }
-}
-
 
 dependencies {
-    compile 'com.jayway.android.robotium:robotium-solo:5.6.3'
-    compile 'com.android.support.test:rules:0.4.1'
-    compile 'junit:junit:4.12'
-    compile 'com.android.support:support-v4:25.3.0'
+    api 'com.jayway.android.robotium:robotium-solo:5.6.3'
+    api 'com.android.support.test:rules:0.4.1'
+    implementation "com.android.support:appcompat-v7:${rootProject.ext.dependencies["com.android.support:appcompat-v7"]}"
 }
+
+apply from : "../maven.gradle"

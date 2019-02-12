@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.graphics.PixelFormat;
 import android.os.CountDownTimer;
 import android.os.SystemClock;
-import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -49,10 +48,10 @@ public class AnimationHelper {
             @Override
             public void onTick(long millisUntilFinished) {
                 Log.e(TAG,"millisUntilFinished:"+millisUntilFinished);
-                TextView textView= (TextView) container.findViewById(R.id.anim_text_view);
+                TextView textView= container.findViewById(R.id.anim_text_view);
                 textView.setText(String.valueOf(millisUntilFinished/1000));
-                ViewCompat.setScaleX(textView,1.6f);
-                ViewCompat.setScaleY(textView,1.6f);
+                textView.setScaleX(1.6f);
+                textView.setScaleY(1.6f);
                 textView.animate().scaleX(1f).scaleY(1f).setDuration(1000);
             }
 

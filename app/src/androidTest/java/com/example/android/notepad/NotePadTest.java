@@ -104,12 +104,6 @@ public class NotePadTest {
         solo.clickOnButton("OK");
         //Click on action menu item Save
         solo.clickOnView(solo.getView(com.example.android.notepad.R.id.menu_save));
-        //Long click Note 2
-        solo.clickLongOnText(NOTE_2);
-        //Click on Delete
-        solo.clickOnText("Delete");
-        //Assert that Note 2 is deleted
-        assertFalse("Note 2 is found", solo.searchText(NOTE_2));
     }
 
     private void deleteNotes() {
